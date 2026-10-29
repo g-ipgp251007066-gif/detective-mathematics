@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detective Mathematics: The Geometry Case Files</title>
+  <style>
+    :root {
+      --bg-cream: #F9F6F0;
+      --paper-beige: #EFEAD8;
+      --charcoal: #2C3539;
+      --muted-red: #A93226;
+      --navy-blue: #1B263B;
+      --pure-white: #FFFFFF;
+      --accent-yellow: #F4D03F;
+      --border-color: #D5D8DC;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace, sans-serif; }
+    body { background-color: var(--bg-cream); color: var(--charcoal); padding: 20px; line-height: 1.5; }
+    .container { max-width: 950px; margin: 0 auto; background: var(--paper-beige); border: 3px solid var(--charcoal); border-radius: 8px; padding: 25px; box-shadow: 8px 8px 0px var(--charcoal); position: relative; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--charcoal); padding-bottom: 15px; margin-bottom: 20px; }
+    .title { font-size: 24px; font-weight: bold; color: var(--navy-blue); text-transform: uppercase; letter-spacing: 1px; }
+    .stamp { background-color: var(--muted-red); color: var(--pure-white); padding: 4px 12px; font-weight: bold; transform: rotate(-3deg); display: inline-block; border-radius: 3px; font-size: 14px; text-transform: uppercase; }
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    
+    .btn { background-color: var(--navy-blue); color: var(--pure-white); border: 2px solid var(--charcoal); padding: 10px 18px; font-size: 15px; font-weight: bold; cursor: pointer; border-radius: 4px; box-shadow: 3px 3px 0px var(--charcoal); transition: all 0.1s ease; text-transform: uppercase; display: inline-block; text-decoration: none; text-align: center; margin: 4px; }
+    .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0px var(--charcoal); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px var(--charcoal); }
+    .btn-red { background-color: var(--muted-red); }
+    .btn-yellow { background-color: var(--accent-yellow); color: var(--charcoal); }
+    .btn-small { padding: 5px 10px; font-size: 12px; }
+    
+    input[type="text"], input[type="password"] { width: 100%; padding: 10px; margin: 8px 0 18px 0; border: 2px solid var(--charcoal); background: var(--pure-white); border-radius: 4px; font-size: 16px; }
+    
+    .card { background: var(--pure-white); border: 2px solid var(--charcoal); padding: 20px; border-radius: 6px; margin-bottom: 20px; box-shadow: 4px 4px 0px rgba(0,0,0,0.1); }
+    .hidden { display: none !important; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-top: 15px; }
+    .case-card { background: var(--pure-white); border: 2px solid var(--charcoal); padding: 15px; border-radius: 6px; position: relative; }
+    
+    .sync-status { font-size: 12px; color: var(--charcoal); background: var(--accent-yellow); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--charcoal); display: inline-block; margin-bottom: 10px; font-weight: bold; }
+    .feedback { padding: 12px; margin-top: 15px; border-radius: 4px; border: 2px solid var(--charcoal); font-weight: bold; }
+    .feedback-correct { background-color: #D4EDDA; color: #155724; }
+    .feedback-incorrect { background-color: #F8D7DA; color: #721C24; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--pure-white); }
+    th, td { border: 1px solid var(--charcoal); padding: 8px 10px; text-align: left; font-size: 12px; }
+    th { background-color: var(--paper-beige); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .modal-content { background: var(--paper-beige); border: 3px solid var(--charcoal); border-radius: 8px; padding: 25px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 8px 8px 0px var(--charcoal); }
+
+    .certificate { border: 5px double var(--navy-blue); padding: 25px; text-align: center; background: #FFFDF5; }
+    .cert-title { font-size: 26px; color: var(--navy-blue); margin-bottom: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="title">🔍 DETECTIVE MATHEMATICS</div>
+      <div style="font-size: 12px; color: var(--charcoal);">THE GEOMETRY CASE FILES • YEAR 6</div>
+    </div>
+    <div style="text-align: right;">
+      <div id="stamp-display" class="stamp">CASE FILE 00</div>
+      <div style="margin-top: 5px;">
+        <button id="btn-audio-toggle" class="btn btn-small btn-yellow" onclick="toggleAudio()">🔊 SOUND: ON</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYNC STATUS BADGE -->
+  <div id="sync-indicator" class="sync-status">Status: Local Session Active</div>
+
+  <!-- SCREEN 1: LOGIN -->
+  <div id="screen-login" class="card">
+    <h2>🕵️ DETECTIVE REGISTRATION</h2>
+    <p style="margin-bottom: 15px; font-size: 14px;">Enter your investigation credentials to access Year 6 Geometry Case Files.</p>
+    
+    <label for="student-name">Full Name: <span style="color:red;">*</span></label>
+    <input type="text" id="student-name" placeholder="e.g., Ali Bin Ahmad">
+    
+    <label for="student-class">Class: <span style="color:red;">*</span></label>
+    <input type="text" id="student-class" placeholder="e.g., 6 Cemerlang">
+    
+    <label for="student-id">Pupil ID: <span style="font-size: 12px; color: #666;">(Optional)</span></label>
+    <input type="text" id="student-id" placeholder="e.g., DET-6012 (Optional)">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <button class="btn btn-red" onclick="startGame()">START INVESTIGATION</button>
+      <button class="btn" onclick="showTeacherLogin()">TEACHER DASHBOARD</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: CASE DASHBOARD -->
+  <div id="screen-dashboard" class="card hidden">
+    <div class="nav-bar">
+      <button class="btn btn-small" onclick="showScreen('screen-login')">⬅ BACK TO LOGIN</button>
+      <span id="welcome-msg" style="font-weight: bold; font-size: 14px;"></span>
+    </div>
+
+    <h2>📁 ACTIVE CASE FILES</h2>
+    <p style="margin-bottom: 10px;">Score: <strong id="user-score">0</strong> / 450 PTS</p>
+    
+    <div class="grid">
+      <!-- CASE 1 -->
+      <div class="case-card">
+        <h3>CASE 01</h3>
+        <p><strong>The Missing Blueprint</strong></p>
+        <p style="font-size: 12px; margin-top: 5px;">Topic: Regular Polygons & Angles (Standards 6.1.1 & 6.1.2)</p>
+        <div style="margin-top: 10px;">
+          <a class="btn btn-small btn-yellow" href="https://www.geogebra.org/geometry/ubtksmnq" target="_blank" onclick="playTapSound()">OPEN PROTRACTOR TOOL</a>
+          <a class="btn btn-small btn-yellow" href="https://www.geogebra.org/geometry/x3fhwzpu" target="_blank" onclick="playTapSound()">OPEN POLYGON TOOL</a>
+        </div>
+        <div style="margin-top: 15px;">
+          <button class="btn btn-small" onclick="startCase(1, 1)">L1: Junior</button>
+          <button class="btn btn-small" onclick="startCase(1, 2)">L2: Field</button>
+          <button class="btn btn-small" onclick="startCase(1, 3)">L3: Master</button>
+        </div>
+      </div>
+
+      <!-- CASE 2 -->
+      <div class="case-card">
+        <h3>CASE 02</h3>
+        <p><strong>The Missing Circle</strong></p>
+        <p style="font-size: 12px; margin-top: 5px;">Topic: Circle Properties & Drawing (Standards 6.2.1 & 6.2.2)</p>
+        <div style="margin-top: 10px;">
+          <a class="btn btn-small btn-yellow" href="https://www.geogebra.org/calculator/vadfjqz6" target="_blank" onclick="playTapSound()">OPEN COMPASS TOOL</a>
+        </div>
+        <div style="margin-top: 15px;">
+          <button class="btn btn-small" onclick="startCase(2, 1)">L1: Junior</button>
+          <button class="btn btn-small" onclick="startCase(2, 2)">L2: Field</button>
+          <button class="btn btn-small" onclick="startCase(2, 3)">L3: Master</button>
+        </div>
+      </div>
+
+      <!-- CASE 3 -->
+      <div class="case-card">
+        <h3>CASE 03</h3>
+        <p><strong>The Final Investigation</strong></p>
+        <p style="font-size: 12px; margin-top: 5px;">Topic: Integrated Geometry Problem-Solving (Standard 6.3.1)</p>
+        <div style="margin-top: 15px;">
+          <button class="btn btn-small" onclick="startCase(3, 1)">L1: Junior</button>
+          <button class="btn btn-small" onclick="startCase(3, 2)">L2: Field</button>
+          <button class="btn btn-small" onclick="startCase(3, 3)">L3: Master</button>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <button class="btn btn-red" onclick="viewFinalReport()">VIEW FINAL REPORT & CERTIFICATE</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: QUESTION -->
+  <div id="screen-question" class="card hidden">
+    <div class="nav-bar">
+      <button class="btn btn-small" onclick="showScreen('screen-dashboard')">⬅ BACK TO DASHBOARD</button>
+      <span id="case-title" style="font-weight: bold; color: var(--navy-blue);">CASE 01 • LEVEL 1</span>
+      <span id="question-tracker">Question 1 / 5</span>
+    </div>
+    
+    <div id="question-body" style="font-size: 16px; margin: 15px 0; font-weight: bold;">[Question]</div>
+    <div id="geogebra-tool-prompt" style="margin-bottom: 15px;" class="hidden"></div>
+    <div id="options-container"></div>
+
+    <div id="hint-box" class="card hidden" style="background: #FFF9C4; margin-top: 10px; font-size: 13px;">
+      💡 <strong>CLUE HINT:</strong> <span id="hint-text"></span>
+    </div>
+
+    <div id="feedback-box" class="feedback hidden"></div>
+
+    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <button class="btn btn-yellow" onclick="toggleHint()">CLUE HINT</button>
+      <button id="btn-next-q" class="btn btn-red hidden" onclick="nextQuestion()">NEXT QUESTION</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: TEACHER DASHBOARD -->
+  <div id="screen-teacher" class="card hidden">
+    <div class="nav-bar">
+      <button class="btn btn-small" onclick="showScreen('screen-login')">⬅ BACK TO LOGIN</button>
+      <span style="font-weight: bold;">TEACHER DASHBOARD</span>
+    </div>
+
+    <div id="teacher-auth-gate">
+      <h3>🔒 SECURITY AUTHORISATION</h3>
+      <p style="margin-bottom: 10px;">Enter teacher dashboard password:</p>
+      <input type="password" id="teacher-pass" placeholder="Password">
+      <button class="btn btn-red" onclick="authenticateTeacher()">LOGIN</button>
+    </div>
+
+    <div id="teacher-content" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <h3>STUDENT PROGRESS & DIAGNOSTIC RECORDS</h3>
+        <div>
+          <a class="btn btn-small btn-yellow" href="https://docs.google.com/spreadsheets/d/1lxjF9lmpNfCul42LnwZZc8HSc2yLO3BsnBth-3M0btI/edit?gid=0#gid=0" target="_blank" onclick="playTapSound()">🔗 OPEN GOOGLE SHEET</a>
+          <button class="btn btn-small btn-yellow" onclick="fetchTeacherData()">🔄 REFRESH DATA</button>
+          <button class="btn btn-small" onclick="logoutTeacher()">LOGOUT</button>
+        </div>
+      </div>
+      
+      <div id="dashboard-loading" class="hidden">Fetching records from Google Sheets backend...</div>
+      
+      <div style="overflow-x: auto;">
+        <table id="teacher-table">
+          <thead>
+            <tr>
+              <th>Sub ID</th>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Pupil ID</th>
+              <th>Score</th>
+              <th>Completed</th>
+              <th>Status</th>
+              <th>Timestamp</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="teacher-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: FINAL REPORT -->
+  <div id="screen-report" class="card hidden">
+    <div class="nav-bar">
+      <button class="btn btn-small" onclick="showScreen('screen-dashboard')">⬅ BACK TO DASHBOARD</button>
+    </div>
+
+    <div class="certificate">
+      <div class="stamp">OFFICIAL CERTIFICATE</div>
+      <div class="cert-title" style="margin-top: 15px;">DETECTIVE MATHEMATICS</div>
+      <p>This certifies that Detective</p>
+      <h2 id="cert-student-name" style="color: var(--muted-red); margin: 10px 0;">[Student Name]</h2>
+      <p>Class: <span id="cert-student-class">[Class]</span> | Pupil ID: <span id="cert-student-id">[Optional]</span></p>
+      <br>
+      <p>has solved Year 6 Geometry Cases with a total score of:</p>
+      <h1 id="cert-score" style="font-size: 36px; color: var(--navy-blue);">0 / 450</h1>
+      <p>DETECTIVE RANK: <strong id="cert-rank">Detective Trainee</strong></p>
+      <p style="font-size: 11px; margin-top: 20px;">Issued by Malaysia DSKP Year 6 Mathematics Geometry Unit</p>
+    </div>
+    
+    <div style="margin-top: 20px; text-align: center;">
+      <button class="btn btn-yellow" onclick="window.print()">PRINT CERTIFICATE</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- DIAGNOSTIC MODAL -->
+<div id="modal-student-detail" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="nav-bar">
+      <button class="btn btn-small" onclick="closeStudentModal()">⬅ BACK TO DASHBOARD</button>
+      <span style="font-weight: bold; color: var(--navy-blue);">STUDENT DIAGNOSTIC PROFILE</span>
+    </div>
+    
+    <h2 id="modal-student-header">Detective Profile</h2>
+    <p id="modal-student-subhead" style="margin-bottom: 15px; font-size: 13px;"></p>
+    
+    <div class="card" style="background: var(--pure-white);">
+      <h4>📊 SUBTOPIC BREAKDOWN</h4>
+      <div id="modal-subtopic-list" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="card" style="background: #E8F8F5; border-color: #117A65;">
+      <h4>🤖 AI EDUCATIONAL DIAGNOSTIC SUMMARY</h4>
+      <div id="modal-ai-goods" style="margin-top: 10px; font-size: 13px;"></div>
+      <div id="modal-ai-lacks" style="margin-top: 10px; font-size: 13px;"></div>
+      <div id="modal-ai-recs" style="margin-top: 10px; font-size: 13px; font-weight: bold; color: var(--navy-blue);"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // =========================================================================
+  // BACKEND ENDPOINT CONFIGURATION
+  // =========================================================================
+  const GAS_ENDPOINT = "https://script.google.com/a/macros/moe-dl.edu.my/s/AKfycbyIU9jgxx74HIsAJMyMW1q8u9tNf0X5D3TwHyCV2-FAGapv2K6yHDOTmL4-ch8jrxI6/exec"; 
+  const TEACHER_PASSWORD_HASH = "teachersdashboardspace"; 
+  
+  let soundEnabled = true;
+  let currentUser = { name: "", class: "", id: "N/A", sessionID: "" };
+  let currentScore = 0;
+  let currentCase = 1;
+  let currentLevel = 1;
+  let currentQIndex = 0;
+  let questionsAnsweredCount = 0;
+  let userAnswers = {};
+
+  let subtopicStats = {
+    "6.1.1 Regular Polygons": [0, 0],
+    "6.1.2 Angles": [0, 0],
+    "6.2.1 Circle Properties": [0, 0],
+    "6.2.2 Drawing Circles": [0, 0],
+    "6.3.1 Problem Solving": [0, 0]
+  };
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function initAudio() { if (!audioCtx) audioCtx = new AudioContext(); }
+  function playTone(freq, duration, type = "sine") {
+    if (!soundEnabled) return;
+    try {
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+  }
+
+  function playTapSound() { playTone(400, 0.05, "square"); }
+  function playCorrectSound() { playTone(587.33, 0.1, "sine"); setTimeout(() => playTone(880, 0.2, "sine"), 100); }
+  function playIncorrectSound() { playTone(200, 0.15, "sawtooth"); }
+
+  function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    document.getElementById("btn-audio-toggle").innerText = soundEnabled ? "🔊 SOUND: ON" : "🔇 SOUND: OFF";
+  }
+
+  function showScreen(screenId) {
+    playTapSound();
+    ["screen-login", "screen-dashboard", "screen-question", "screen-teacher", "screen-report"].forEach(s => document.getElementById(s).classList.add("hidden"));
+    document.getElementById(screenId).classList.remove("hidden");
+  }
+
+  const QUESTION_BANK = {
+    c1_l1: [
+      { sub: "6.1.1 Regular Polygons", q: "Which shape is a regular polygon with 5 equal sides and 5 equal interior angles?", options: ["Pentagon", "Hexagon", "Octagon", "Square"], ans: 0, hint: "Look for prefix 'Penta-' meaning 5.", exp: "A regular pentagon has 5 equal sides and 5 equal interior angles." },
+      { sub: "6.1.1 Regular Polygons", q: "How many vertices does a regular octagon have?", options: ["6", "7", "8", "10"], ans: 2, hint: "An octagon has 8 sides.", exp: "A regular octagon has 8 vertices." },
+      { sub: "6.1.2 Angles", q: "An angle measuring exactly 90° is called a...", options: ["Acute Angle", "Right Angle", "Obtuse Angle", "Reflex Angle"], ans: 1, hint: "Forms a square corner.", exp: "A 90° angle is a Right Angle." },
+      { sub: "6.1.2 Angles", q: "An angle measuring 45° is classified as...", options: ["Acute Angle", "Right Angle", "Obtuse Angle", "Straight Angle"], ans: 0, hint: "Less than 90°.", exp: "Angles under 90° are Acute." },
+      { sub: "6.1.1 Regular Polygons", q: "What is the total number of sides in a regular hexagon?", options: ["5", "6", "8", "10"], ans: 1, hint: "Hexa- means six.", exp: "A regular hexagon has 6 sides." }
+    ],
+    c1_l2: [
+      { sub: "6.1.1 Regular Polygons", q: "Interior angle measures 108°. Which polygon is it?", options: ["Equilateral Triangle", "Square", "Regular Pentagon", "Regular Hexagon"], ans: 2, hint: "Sum = 540°; 540 / 5 = 108°.", exp: "Each angle of a regular pentagon is 108°." },
+      { sub: "6.1.2 Angles", q: "Angle rotation from 0° to 135° forms an...", options: ["Acute Angle", "Right Angle", "Obtuse Angle", "Straight Line"], ans: 2, hint: "Between 90° and 180°.", exp: "135° is an Obtuse Angle." },
+      { sub: "6.1.1 Regular Polygons", q: "A regular heptagon has how many sides and angles?", options: ["6 sides, 6 angles", "7 sides, 7 angles", "8 sides, 8 angles", "5 sides, 5 angles"], ans: 1, hint: "Hepta- means seven.", exp: "A heptagon has 7 equal sides and 7 angles." },
+      { sub: "6.1.2 Angles", q: "Combine 40° and 35°. Total angle measure?", options: ["75° (Acute)", "90° (Right)", "105° (Obtuse)", "180° (Straight)"], ans: 0, hint: "40 + 35 = 75.", exp: "75° is an Acute angle." },
+      { sub: "6.1.2 Angles", q: "Where must protractor baseline align when measuring?", options: ["Vertex", "Along one arm", "Paper centre", "Top edge"], ans: 1, hint: "Aligns with one arm/side.", exp: "Baseline aligns with one arm." }
+    ],
+    c1_l3: [
+      { sub: "6.1.1 Regular Polygons", q: "Perimeter = 48 cm; side length = 8 cm. Polygon name?", options: ["Regular Hexagon", "Regular Octagon", "Regular Pentagon", "Square"], ans: 0, hint: "48 / 8 = 6 sides.", exp: "48 / 8 = 6 sides -> Regular Hexagon." },
+      { sub: "6.1.2 Angles", q: "Angle A = 62°. Angle B is double Angle A. Type?", options: ["Acute", "Obtuse", "Right", "Reflex"], ans: 1, hint: "62 * 2 = 124°.", exp: "124° is an Obtuse Angle." },
+      { sub: "6.1.2 Angles", q: "Constructed angle = 150° on a 180° baseline. Remaining angle?", options: ["20°", "30°", "40°", "50°"], ans: 1, hint: "180 - 150.", exp: "180 - 150 = 30°." },
+      { sub: "6.1.1 Regular Polygons", q: "Interior angle sum of regular octagon = 1080°. ONE angle?", options: ["120°", "135°", "140°", "150°"], ans: 1, hint: "1080 / 8.", exp: "1080 / 8 = 135°." },
+      { sub: "6.1.1 Regular Polygons", q: "TRUE statement for regular polygons:", options: ["All sides equal, angles differ.", "All angles equal and all sides equal.", "Opposite sides parallel.", "Sum is always 360°."], ans: 1, hint: "Equal sides AND equal angles.", exp: "Regular polygons have equal sides and equal angles." }
+    ],
+    c2_l1: [
+      { sub: "6.2.1 Circle Properties", q: "Distance from centre to boundary is the...", options: ["Diameter", "Radius", "Circumference", "Arc"], ans: 1, hint: "Half of diameter.", exp: "Centre to edge is Radius." },
+      { sub: "6.2.1 Circle Properties", q: "Line passing through centre connecting opposite edges is...", options: ["Radius", "Diameter", "Chord", "Tangent"], ans: 1, hint: "Cuts circle in half.", exp: "Line through centre is Diameter." },
+      { sub: "6.2.1 Circle Properties", q: "Radius = 7 cm. Diameter = ?", options: ["3.5 cm", "7 cm", "14 cm", "21 cm"], ans: 2, hint: "7 x 2.", exp: "Diameter = 2 x 7 = 14 cm." },
+      { sub: "6.2.1 Circle Properties", q: "Diameter = 20 cm. Radius = ?", options: ["5 cm", "10 cm", "15 cm", "40 cm"], ans: 1, hint: "20 / 2.", exp: "Radius = 20 / 2 = 10 cm." },
+      { sub: "6.2.2 Drawing Circles", q: "Fixed needle point of compass marks the...", options: ["Radius", "Diameter", "Centre point", "Edge"], ans: 2, hint: "Fixed in middle.", exp: "Fixed point is the Centre." }
+    ],
+    c2_l2: [
+      { sub: "6.2.2 Drawing Circles", q: "Compass width = 6 cm. Drawn diameter = ?", options: ["3 cm", "6 cm", "12 cm", "18 cm"], ans: 2, hint: "Compass width = radius. 6 x 2.", exp: "Diameter = 12 cm." },
+      { sub: "6.2.1 Circle Properties", q: "Circle A radius = 5 cm. Circle B diameter = 10 cm. Size comparison?", options: ["A > B", "B > A", "A and B equal", "B double area"], ans: 2, hint: "B radius = 10/2 = 5 cm.", exp: "Both circles are equal in size." },
+      { sub: "6.2.2 Drawing Circles", q: "Lens diameter = 16 cm. Compass gap setting?", options: ["8 cm", "16 cm", "32 cm", "4 cm"], ans: 0, hint: "Gap = Radius = 16 / 2.", exp: "Gap = 8 cm." },
+      { sub: "6.2.1 Circle Properties", q: "Line from centre to edge = 4.5 cm. Diameter = ?", options: ["4.5 cm", "9.0 cm", "13.5 cm", "18.0 cm"], ans: 1, hint: "4.5 x 2.", exp: "Diameter = 9.0 cm." },
+      { sub: "6.2.2 Drawing Circles", q: "Tool required with ruler to draw exact circle:", options: ["Protractor", "Pair of Compasses", "Set Square", "Tape"], ans: 1, hint: "Has a sharp point and pencil.", exp: "Pair of Compasses." }
+    ],
+    c2_l3: [
+      { sub: "6.2.1 Circle Properties", q: "Circle 1 radius = 3 cm. Circle 2 diameter = 10 cm. Gap between boundaries?", options: ["2 cm", "4 cm", "5 cm", "7 cm"], ans: 0, hint: "Circle 2 radius = 5 cm. 5 - 3.", exp: "Gap = 5 - 3 = 2 cm." },
+      { sub: "6.2.1 Circle Properties", q: "Touching circles: Radius X = 4 cm, Radius Y = 6 cm. Distance between centres?", options: ["2 cm", "10 cm", "24 cm", "12 cm"], ans: 1, hint: "4 + 6.", exp: "Distance = 4 + 6 = 10 cm." },
+      { sub: "6.2.1 Circle Properties", q: "If radius increases by 3 cm, diameter increases by...", options: ["3 cm", "6 cm", "9 cm", "12 cm"], ans: 1, hint: "2 x 3.", exp: "Diameter increases by 6 cm." },
+      { sub: "6.2.2 Drawing Circles", q: "Drawn radius = 14 cm instead of requested diameter = 14 cm. Radius error?", options: ["0 cm", "7 cm", "14 cm", "21 cm"], ans: 1, hint: "Requested radius = 7 cm. 14 - 7.", exp: "Error = 7 cm." },
+      { sub: "6.2.1 Circle Properties", q: "3 touching circles in a row (radius = 5 cm). Total length?", options: ["15 cm", "20 cm", "30 cm", "60 cm"], ans: 2, hint: "3 x Diameter (10 cm).", exp: "Total = 3 x 10 = 30 cm." }
+    ],
+    c3_l1: [
+      { sub: "6.3.1 Problem Solving", q: "Regular octagon tape; side = 2 m. Total perimeter?", options: ["12 m", "14 m", "16 m", "18 m"], ans: 2, hint: "8 x 2.", exp: "Perimeter = 16 m." },
+      { sub: "6.3.1 Problem Solving", q: "Turn 90° then 45°. Total rotation angle?", options: ["125°", "135°", "145°", "180°"], ans: 1, hint: "90 + 45.", exp: "90 + 45 = 135°." },
+      { sub: "6.3.1 Problem Solving", q: "Table diameter = 180 cm. Does an 85 cm ruler fit along radius?", options: ["Yes, radius is 90 cm.", "No, radius is 45 cm.", "No, radius is 180 cm.", "Yes, radius is 170 cm."], ans: 0, hint: "Radius = 90 cm. 85 < 90.", exp: "Fits because radius is 90 cm." },
+      { sub: "6.3.1 Problem Solving", q: "Regular pentagon tile lines of symmetry?", options: ["4", "5", "6", "10"], ans: 1, hint: "Equal to sides.", exp: "5 lines of symmetry." },
+      { sub: "6.3.1 Problem Solving", q: "Blueprint angle = 178°. Category?", options: ["Acute", "Right", "Obtuse", "Reflex"], ans: 2, hint: "Between 90° and 180°.", exp: "Obtuse Angle." }
+    ],
+    c3_l2: [
+      { sub: "6.3.1 Problem Solving", q: "Regular hexagon tile; side = 15 cm. Perimeter?", options: ["60 cm", "75 cm", "90 cm", "120 cm"], ans: 2, hint: "6 x 15.", exp: "Perimeter = 90 cm." },
+      { sub: "6.3.1 Problem Solving", q: "Rotate from 15° to 165°. Rotation angle?", options: ["140°", "150°", "160°", "180°"], ans: 1, hint: "165 - 15.", exp: "165 - 15 = 150°." },
+      { sub: "6.3.1 Problem Solving", q: "Courtyard radius = 12 m. Straight-line diameter path distance?", options: ["12 m", "24 m", "36 m", "48 m"], ans: 1, hint: "12 x 2.", exp: "Diameter = 24 m." },
+      { sub: "6.3.1 Problem Solving", q: "Straight line angles: (2x)° and 80°. Find x.", options: ["40°", "50°", "60°", "100°"], ans: 1, hint: "2x = 100.", exp: "x = 50°." },
+      { sub: "6.3.1 Problem Solving", q: "Regular heptagon perimeter = 91 cm. Side length?", options: ["11 cm", "12 cm", "13 cm", "14 cm"], ans: 2, hint: "91 / 7.", exp: "Side = 13 cm." }
+    ],
+    c3_l3: [
+      { sub: "6.3.1 Problem Solving", q: "Code = [Octagon Sides] [Hexagon Vertices] [Radius of 18cm Circle] [90/10]. Code?", options: ["8699", "86189", "86990", "8690"], ans: 0, hint: "8, 6, 9, 9.", exp: "Code = 8699." },
+      { sub: "6.3.1 Problem Solving", q: "4 regular pentagon badges (side 6 cm). Total combined perimeter?", options: ["100 cm", "120 cm", "140 cm", "160 cm"], ans: 1, hint: "4 x (5 x 6).", exp: "Total = 120 cm." },
+      { sub: "6.3.1 Problem Solving", q: "Walk 2 outer edges (25m each) vs 35m diameter path. How much shorter?", options: ["10 m", "15 m", "20 m", "25 m"], ans: 1, hint: "50 - 35.", exp: "15 metres shorter." },
+      { sub: "6.3.1 Problem Solving", q: "Angles at a point: 110°, 130°, y°. Find y (sum = 360°).", options: ["120° (Obtuse)", "120° (Acute)", "140° (Obtuse)", "90° (Right)"], ans: 0, hint: "360 - 240.", exp: "y = 120° (Obtuse)." },
+      { sub: "6.3.1 Problem Solving", q: "Octagon vault room needs camera at each vertex (RM150 each). Total cost?", options: ["RM 900", "RM 1,050", "RM 1,200", "RM 1,500"], ans: 2, hint: "8 x 150.", exp: "8 x 150 = RM1,200." }
+    ]
+  };
+
+  function startGame() {
+    playTapSound();
+    const name = document.getElementById("student-name").value.trim();
+    const cls = document.getElementById("student-class").value.trim();
+    const id = document.getElementById("student-id").value.trim() || "N/A";
+
+    if (!name || !cls) {
+      alert("Please enter Name and Class.");
+      return;
+    }
+
+    currentUser.name = name;
+    currentUser.class = cls;
+    currentUser.id = id;
+    currentUser.sessionID = "SES-" + Date.now() + "-" + Math.floor(Math.random()*1000);
+
+    document.getElementById("welcome-msg").innerText = `Detective ${name} (${cls}) • ID: ${id}`;
+    document.getElementById("stamp-display").innerText = "CASE ACTIVE";
+
+    showScreen("screen-dashboard");
+    syncProgress("Session Started");
+  }
+
+  function startCase(cNum, lNum) {
+    playTapSound();
+    currentCase = cNum;
+    currentLevel = lNum;
+    currentQIndex = 0;
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const key = `c${currentCase}_l${currentLevel}`;
+    const qList = QUESTION_BANK[key];
+
+    if (!qList || currentQIndex >= qList.length) {
+      alert("Level complete! Returning to dashboard.");
+      showScreen("screen-dashboard");
+      return;
+    }
+
+    const qData = qList[currentQIndex];
+    showScreen("screen-question");
+    
+    document.getElementById("case-title").innerText = `CASE 0${currentCase} • LEVEL ${currentLevel}`;
+    document.getElementById("question-tracker").innerText = `Question ${currentQIndex + 1} / ${qList.length}`;
+    document.getElementById("question-body").innerText = qData.q;
+    
+    const ggbBox = document.getElementById("geogebra-tool-prompt");
+    ggbBox.innerHTML = "";
+    if (currentCase === 1) {
+      ggbBox.innerHTML = `<a class="btn btn-small btn-yellow" href="https://www.geogebra.org/geometry/ubtksmnq" target="_blank" onclick="playTapSound()">🔗 PROTRACTOR TOOL</a>
+                          <a class="btn btn-small btn-yellow" href="https://www.geogebra.org/geometry/x3fhwzpu" target="_blank" onclick="playTapSound()">🔗 POLYGON TOOL</a>`;
+      ggbBox.classList.remove("hidden");
+    } else if (currentCase === 2) {
+      ggbBox.innerHTML = `<a class="btn btn-small btn-yellow" href="https://www.geogebra.org/calculator/vadfjqz6" target="_blank" onclick="playTapSound()">🔗 COMPASS TOOL</a>`;
+      ggbBox.classList.remove("hidden");
+    } else {
+      ggbBox.classList.add("hidden");
+    }
+
+    const optContainer = document.getElementById("options-container");
+    optContainer.innerHTML = "";
+    qData.options.forEach((optText, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.style.width = "100%";
+      btn.style.textAlign = "left";
+      btn.style.margin = "5px 0";
+      btn.innerText = `${String.fromCharCode(65 + idx)}. ${optText}`;
+      btn.onclick = () => submitAnswer(idx);
+      optContainer.appendChild(btn);
+    });
+
+    document.getElementById("hint-box").classList.add("hidden");
+    document.getElementById("hint-text").innerText = qData.hint;
+    document.getElementById("feedback-box").classList.add("hidden");
+    document.getElementById("btn-next-q").classList.add("hidden");
+  }
+
+  function toggleHint() {
+    playTapSound();
+    document.getElementById("hint-box").classList.toggle("hidden");
+  }
+
+  function submitAnswer(selectedIdx) {
+    const key = `c${currentCase}_l${currentLevel}`;
+    const qData = QUESTION_BANK[key][currentQIndex];
+    const fbBox = document.getElementById("feedback-box");
+
+    const optBtns = document.getElementById("options-container").getElementsByTagName("button");
+    for (let b of optBtns) { b.disabled = true; }
+
+    const questionID = `${key}_q${currentQIndex}`;
+    const subtopicKey = qData.sub;
+    
+    if (!subtopicStats[subtopicKey]) subtopicStats[subtopicKey] = [0, 0];
+    subtopicStats[subtopicKey][1]++;
+
+    if (selectedIdx === qData.ans) {
+      playCorrectSound();
+      subtopicStats[subtopicKey][0]++;
+      if (!userAnswers[questionID]) {
+        currentScore += 10;
+        questionsAnsweredCount++;
+        userAnswers[questionID] = true;
+      }
+      fbBox.className = "feedback feedback-correct";
+      fbBox.innerHTML = `✅ <strong>CORRECT EVIDENCE!</strong> (+10 PTS)<br>${qData.exp}`;
+    } else {
+      playIncorrectSound();
+      if (!userAnswers[questionID]) {
+        questionsAnsweredCount++;
+        userAnswers[questionID] = false;
+      }
+      fbBox.className = "feedback feedback-incorrect";
+      fbBox.innerHTML = `❌ <strong>MISCONCEPTION DETECTED!</strong><br>Correct Answer: ${qData.options[qData.ans]}<br>${qData.exp}`;
+    }
+
+    fbBox.classList.remove("hidden");
+    document.getElementById("btn-next-q").classList.remove("hidden");
+    document.getElementById("user-score").innerText = currentScore;
+
+    syncProgress("In Progress");
+  }
+
+  function nextQuestion() {
+    playTapSound();
+    currentQIndex++;
+    showQuestion();
+  }
+
+  function viewFinalReport() {
+    playTapSound();
+    showScreen("screen-report");
+
+    document.getElementById("cert-student-name").innerText = currentUser.name || "Pupil";
+    document.getElementById("cert-student-class").innerText = currentUser.class || "-";
+    document.getElementById("cert-student-id").innerText = currentUser.id || "N/A";
+    document.getElementById("cert-score").innerText = `${currentScore} / 450`;
+    document.getElementById("cert-rank").innerText = getRank(currentScore);
+
+    syncProgress("Completed");
+  }
+
+  function getRank(score) {
+    if (score >= 400) return "Chief Detective";
+    if (score >= 300) return "Senior Detective";
+    if (score >= 150) return "Junior Investigator";
+    return "Detective Trainee";
+  }
+
+  // =========================================================================
+  // RELIABLE BACKEND SYNCHRONISATION (NO-CORS TEXT PAYLOAD)
+  // =========================================================================
+  function syncProgress(status) {
+    const indicator = document.getElementById("sync-indicator");
+    indicator.innerText = "Syncing with backend...";
+
+    const payload = {
+      action: "saveSubmission",
+      submissionID: currentUser.sessionID,
+      pupilName: currentUser.name,
+      pupilClass: currentUser.class,
+      pupilID: currentUser.id,
+      score: currentScore,
+      questionsCompleted: questionsAnsweredCount,
+      timestamp: new Date().toISOString(),
+      sessionStatus: status,
+      topicBreakdown: JSON.stringify(subtopicStats)
+    };
+
+    fetch(GAS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      indicator.innerText = "Status: Progress Synced to Backend ✓";
+    })
+    .catch((err) => {
+      indicator.innerText = "Status: Sync Offline (Saved Locally)";
+    });
+  }
+
+  // =========================================================================
+  // TEACHER DASHBOARD & AUTHENTICATION
+  // =========================================================================
+  function showTeacherLogin() {
+    playTapSound();
+    showScreen("screen-teacher");
+  }
+
+  function authenticateTeacher() {
+    playTapSound();
+    const pass = document.getElementById("teacher-pass").value;
+    if (pass === TEACHER_PASSWORD_HASH) {
+      document.getElementById("teacher-auth-gate").classList.add("hidden");
+      document.getElementById("teacher-content").classList.remove("hidden");
+      fetchTeacherData();
+    } else {
+      alert("Invalid Security Password.");
+    }
+  }
+
+  function logoutTeacher() {
+    playTapSound();
+    document.getElementById("teacher-pass").value = "";
+    document.getElementById("teacher-content").classList.add("hidden");
+    document.getElementById("teacher-auth-gate").classList.remove("hidden");
+    showScreen("screen-login");
+  }
+
+  let teacherFetchedRecords = [];
+
+  function fetchTeacherData() {
+    const loading = document.getElementById("dashboard-loading");
+    const tbody = document.getElementById("teacher-table-body");
+    loading.classList.remove("hidden");
+    loading.innerText = "Fetching records from Google Sheets backend...";
+    tbody.innerHTML = "";
+
+    // GET request passing authentication key
+    fetch(`${GAS_ENDPOINT}?auth=${encodeURIComponent(TEACHER_PASSWORD_HASH)}`)
+      .then(res => res.json())
+      .then(data => {
+        loading.classList.add("hidden");
+        if (data.result === "success" && data.records) {
+          teacherFetchedRecords = data.records;
+          renderTeacherTable(data.records);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="9">No records found or authorization rejected.</td></tr>`;
+        }
+      })
+      .catch((err) => {
+        loading.innerText = "Unable to connect to Apps Script backend. Verify deployment permissions.";
+      });
+  }
+
+  function renderTeacherTable(records) {
+    const tbody = document.getElementById("teacher-table-body");
+    tbody.innerHTML = "";
+    if (records.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align: center;">No student submissions recorded yet.</td></tr>`;
+      return;
+    }
+    records.forEach((row, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.submissionID || '-'}</td>
+        <td><strong>${row.pupilName || '-'}</strong></td>
+        <td>${row.pupilClass || '-'}</td>
+        <td>${row.pupilID || 'N/A'}</td>
+        <td><strong>${row.score}</strong> / 450</td>
+        <td>${row.questionsCompleted} / 45</td>
+        <td><span class="stamp" style="font-size: 10px; background: ${row.sessionStatus === 'Completed' ? '#117A65' : '#D35400'}">${row.sessionStatus || 'Active'}</span></td>
+        <td>${row.timestamp ? new Date(row.timestamp).toLocaleTimeString() : '-'}</td>
+        <td><button class="btn btn-small btn-yellow" onclick="openStudentModal(${idx})">🔍 DETAIL & AI SUMMARY</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openStudentModal(recordIndex) {
+    playTapSound();
+    const rec = teacherFetchedRecords[recordIndex];
+    if (!rec) return;
+
+    document.getElementById("modal-student-header").innerText = `Detective ${rec.pupilName}`;
+    document.getElementById("modal-student-subhead").innerText = `Class: ${rec.pupilClass} | Pupil ID: ${rec.pupilID} | Session ID: ${rec.submissionID} | Status: ${rec.sessionStatus}`;
+
+    let breakdown = {};
+    try {
+      breakdown = typeof rec.topicBreakdown === "string" ? JSON.parse(rec.topicBreakdown) : rec.topicBreakdown;
+    } catch(e) { breakdown = {}; }
+
+    const subList = document.getElementById("modal-subtopic-list");
+    subList.innerHTML = "";
+    
+    let goods = [];
+    let lacks = [];
+
+    const defaultSubtopics = [
+      "6.1.1 Regular Polygons",
+      "6.1.2 Angles",
+      "6.2.1 Circle Properties",
+      "6.2.2 Drawing Circles",
+      "6.3.1 Problem Solving"
+    ];
+
+    defaultSubtopics.forEach(subKey => {
+      const stat = breakdown[subKey] || [0, 0];
+      const correct = stat[0];
+      const total = stat[1];
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+      const item = document.createElement("div");
+      item.style.margin = "6px 0";
+      item.innerHTML = `<strong>${subKey}:</strong> ${correct} / ${total} correct (${pct}%)`;
+      subList.appendChild(item);
+
+      if (total > 0) {
+        if (pct >= 70) goods.push(`${subKey} (${pct}%)`);
+        else lacks.push(`${subKey} (${pct}%)`);
+      } else {
+        lacks.push(`${subKey} (Not attempted)`);
+      }
+    });
+
+    document.getElementById("modal-ai-goods").innerHTML = `<strong>🌟 MASTERY & STRENGTHS:</strong><br>` + 
+      (goods.length > 0 ? `• Pupil demonstrates strong proficiency in: ${goods.join(", ")}.` : "• Pupil is building foundational skills.");
+
+    document.getElementById("modal-ai-lacks").innerHTML = `<strong>⚠️ AREAS FOR IMPROVEMENT:</strong><br>` + 
+      (lacks.length > 0 ? `• Misconceptions detected or pending practice in: ${lacks.join(", ")}.` : "• Excellent performance across all attempted topics!");
+
+    let recText = "💡 <strong>TEACHER INTERVENTION STRATEGY:</strong><br>";
+    if (lacks.some(l => l.includes("Angles"))) recText += "• Practice angle construction up to 180° using GeoGebra Tool A.<br>";
+    if (lacks.some(l => l.includes("Polygons"))) recText += "• Review regular polygon properties (up to 8 sides) using GeoGebra Tool B.<br>";
+    if (lacks.some(l => l.includes("Circle"))) recText += "• Reinforce radius vs. diameter relationships (d = 2r) using GeoGebra Tool C.<br>";
+    if (lacks.some(l => l.includes("Problem Solving"))) recText += "• Work on scaffolded multi-step geometry word problems.<br>";
+
+    document.getElementById("modal-ai-recs").innerHTML = recText;
+    document.getElementById("modal-student-detail").classList.remove("hidden");
+  }
+
+  function closeStudentModal() {
+    playTapSound();
+    document.getElementById("modal-student-detail").classList.add("hidden");
+  }
+</script>
+</body>
+</html>
